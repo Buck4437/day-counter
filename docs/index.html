@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Day Counter</title>
+        <link rel="stylesheet" href="stylesheets/styles.css">
+    </head>
+    <body>
+        <div id="app">
+            <div class="counters-list">
+                <div v-for="(counter, i) in userdata.counter">
+                    {{counter.name}} {{counter.date}}<br>
+                    Days: {{calculateTimeDiff(counter.date, true)}}
+                    <button @click="deleteCounter(i)">Delete</button>
+                </div>
+            </div>
+            Name: <input v-model="inputModel.name"><br>
+            Date: <input type="date" v-model="inputModel.date"><br>
+            <button @click="addDate">Add New Counter</button>
+        </div>
+    </body>
+
+    <script src="javascript/libraries/vue.js"></script>
+    <script src="javascript/index.js"></script>
+</html>
+
+<!--
+TODO LIST:
+
+Auto update the page when hits 12 o' clock
+Count the first day as day 1 mode (for individual counter) -> Can only enable on countdown mode
+Forward counting, backward counting
+Pretty much it.
+-->
