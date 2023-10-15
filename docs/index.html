@@ -6,6 +6,7 @@
     </head>
     <body>
         <div id="app">
+            The current date is {{currentDateStr}}.<br><br>
             <div class="counters-list">
                 <div v-for="(counter, i) in userdata.counter">
                     {{counter.name}}<br>
@@ -13,6 +14,7 @@
                     {{daysText(counter.date, counter.reverse)}}
                     <button @click="deleteCounter(i)">Delete</button>
                     <input type="checkbox" v-model="counter.reverse"> Reverse mode
+                    <br><br>
                 </div>
             </div>
             Name: <input v-model="inputModel.name"><br>
@@ -29,8 +31,10 @@
 <!--
 TODO LIST:
 
-Backup plan to restore corrupted userdata (e.g. by displaying an export page)
-Auto update the page when hits 12 o' clock
+Edit date for entry
+Export and Import
+Backup plan to restore corrupted userdata (e.g. by displaying an export page for local storage, to prevent deleting their userdata)
+Auto update the page when hits 12 o' clock (Untested)
 Memo for each entry
 Archive / Trash Can (?????)
 -->

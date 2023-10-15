@@ -16,7 +16,21 @@ const app = new Vue({
             name: "",
             reverse: false
         },
-        currentDate: new Date(Date.now())
+        currentDate: new Date(Date.now()),
+    },
+    computed: {
+        currentDateStr() {
+            const now = this.currentDate;
+            let month = (now.getMonth() + 1);               
+            let day = now.getDate();
+            if (month < 10) {
+                month = `0${month}`;
+            }  
+            if (day < 10) {
+                day = `0${day}`;
+            }
+            return `${now.getFullYear()}-${month}-${day}`;
+        }
     },
     methods: {
         addDate() {
@@ -86,19 +100,8 @@ const app = new Vue({
         this.userdata = loadFromLocalStorage();
     },
     mounted() {
-
-        const now = new Date();
-        let month = (now.getMonth() + 1);               
-        let day = now.getDate();
-        if (month < 10) {
-            month = `0${month}`;
-        }  
-        if (day < 10) {
-            day = `0${day}`;
-        }
-        const today = `${now.getFullYear()}-${month}-${day}`;
-        this.inputModel.date = today;
-
+        this.updateCurrentDate();
+        this.inputModel.date = this.currentDateStr;
         setInterval(this.updateCurrentDate, 1000);
     }
 });
