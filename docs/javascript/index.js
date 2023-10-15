@@ -1,25 +1,40 @@
+const SAVE_KEY = "Buck4437-Day-Counter-Userdata";
+
+function generateDefaultProfile() {
+    return {
+        counter: []
+    };
+}
+
 // eslint-disable-next-line no-unused-vars
 const app = new Vue({
     el: "#app",
     data: {
-        userdata: {
-            counter: []
-        },
+        userdata: generateDefaultProfile(),
         inputModel: {
             date: "",
-            name: ""
-        }
+            name: "",
+            reverse: false
+        },
+        currentDate: new Date(Date.now())
     },
     methods: {
         addDate() {
             this.userdata.counter.push({
                 date: this.inputModel.date,
-                name: this.inputModel.name,
-                reverse: false
+                name: this.inputModel.name.trim() === "" ? "Unnamed" : this.inputModel.name,
+                reverse: this.inputModel.reverse
             });
         },
+        updateCurrentDate() {
+            const date = new Date(Date.now());
+            date.setHours(0, 0, 0, 0);
+            this.currentDate = date;
+        },
         deleteCounter(i) {
-            this.userdata.counter.splice(i, 1);
+            if (confirm("Do you want to delete this counter?")) {
+                this.userdata.counter.splice(i, 1);
+            }
         },
 
         // If no reverse:
@@ -49,10 +64,8 @@ const app = new Vue({
         },
         daysFromNow(strBaseDate, reverse) {
             const baseDate = new Date(strBaseDate);
-            const currDate = new Date(Date.now());
-            currDate.setHours(0, 0, 0, 0);
 
-            const days = daysBetween(baseDate, currDate);
+            const days = daysBetween(baseDate, this.currentDate);
 
             if (reverse) {
                 return days;
@@ -61,7 +74,19 @@ const app = new Vue({
             return days + (days >= 0 ? 1 : 0);
         }
     },
+    watch: {
+        userdata: {
+            deep: true,
+            handler(data) {
+                saveToLocalStorage(data);
+            }
+        }
+    },
+    created() {
+        this.userdata = loadFromLocalStorage();
+    },
     mounted() {
+
         const now = new Date();
         let month = (now.getMonth() + 1);               
         let day = now.getDate();
@@ -73,8 +98,31 @@ const app = new Vue({
         }
         const today = `${now.getFullYear()}-${month}-${day}`;
         this.inputModel.date = today;
+
+        setInterval(this.updateCurrentDate, 1000);
     }
 });
+
+function saveToLocalStorage(data) {
+    const JSONdata = JSON.stringify(data);
+    localStorage.setItem(SAVE_KEY, JSONdata);
+}
+
+
+function loadFromLocalStorage() {
+    try {
+        const JSONdata = localStorage.getItem(SAVE_KEY);
+        if (JSONdata === null) {
+            console.log("No profile find, generating default profile...");
+            return generateDefaultProfile;
+        }
+        return JSON.parse(JSONdata);
+    } catch (e) {
+        console.error(e);
+        console.error("Error when parsing userdata: default profile loaded instead.");
+        return generateDefaultProfile;
+    }
+}
 
 // Stolen from stack overflow 
 // https://stackoverflow.com/questions/2627473/how-to-calculate-the-number-of-days-between-two-dates

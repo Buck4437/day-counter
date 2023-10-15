@@ -17,6 +17,7 @@
             </div>
             Name: <input v-model="inputModel.name"><br>
             Date: <input type="date" v-model="inputModel.date"><br>
+            <input type="checkbox" v-model="inputModel.reverse"> Reverse mode<br>
             <button @click="addDate">Add New Counter</button>
         </div>
     </body>
@@ -28,6 +29,8 @@
 <!--
 TODO LIST:
 
+Backup plan to restore corrupted userdata (e.g. by displaying an export page)
 Auto update the page when hits 12 o' clock
+Memo for each entry
 Archive / Trash Can (?????)
 -->
