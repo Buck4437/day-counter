@@ -117,13 +117,13 @@ function loadFromLocalStorage() {
         const JSONdata = localStorage.getItem(SAVE_KEY);
         if (JSONdata === null) {
             console.log("No profile find, generating default profile...");
-            return generateDefaultProfile;
+            return generateDefaultProfile();
         }
         return JSON.parse(JSONdata);
     } catch (e) {
         console.error(e);
         console.error("Error when parsing userdata: default profile loaded instead.");
-        return generateDefaultProfile;
+        return generateDefaultProfile();
     }
 }
 
