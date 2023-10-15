@@ -11,26 +11,54 @@ const app = new Vue({
         }
     },
     methods: {
-        increment() {
-            this.userdata.count++;
-        },
         addDate() {
             this.userdata.counter.push({
                 date: this.inputModel.date,
                 name: this.inputModel.name,
+                reverse: false
             });
         },
         deleteCounter(i) {
             this.userdata.counter.splice(i, 1);
         },
-        calculateTimeDiff(strBaseDate, treatDay1) {
+
+        // If no reverse:
+        // X day(s) until Day 1 => Day 1 + x
+        
+        // If reverse:
+        // Oct 13: Oct 12 will show 1 day remaining, 
+        // Oct 13 will show today is the day, 
+        // Oct 14 will show 1 day since.
+        daysText(strBaseDate, reverse) {
+            const days = this.daysFromNow(strBaseDate, reverse);
+
+            if (reverse) {
+                if (days < 0) {
+                    return `${-days} day${days === -1 ? "" : "s"} remaining`;
+                }
+                if (days > 0) {
+                    return `${days} day${days === 1 ? "" : "s"} since`;
+                }
+                return `Today`;
+            }
+
+            if (days >= 0) {
+                return `Day ${days}`;
+            }
+            return `${-days} day${days === -1 ? "" : "s"} until Day 1`;
+        },
+        daysFromNow(strBaseDate, reverse) {
             const baseDate = new Date(strBaseDate);
             const currDate = new Date(Date.now());
             currDate.setHours(0, 0, 0, 0);
 
             const days = daysBetween(baseDate, currDate);
 
-            return days + (treatDay1 ? Math.sign(days) : 0);
+            if (reverse) {
+                return days;
+            }
+
+            return days + (days >= 0 ? 1 : 0);
         }
     },
     mounted() {
@@ -47,24 +75,6 @@ const app = new Vue({
         this.inputModel.date = today;
     }
 });
-
-// function dateToYMD(dateObject) {
-//     return [dateObject.getYear(), dateObject.getMonth(), dateObject.getDay()];
-// }
-
-// function compareDate(date1, date2) {
-//     const parsedDate1 = dateToYMD(date1);
-//     const parsedDate2 = dateToYMD(date2);
-//     for (let i = 0; i < 3; i++) {
-//         if (parsedDate1[i] < parsedDate2[i]) {
-//             return -1;
-//         }
-//         if (parsedDate1[i] > parsedDate2[i]) {
-//             return 1;
-//         }
-//     }
-//     return 0;
-// }
 
 // Stolen from stack overflow 
 // https://stackoverflow.com/questions/2627473/how-to-calculate-the-number-of-days-between-two-dates
