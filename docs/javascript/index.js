@@ -1,56 +1,56 @@
 const SAVE_KEY = "Buck4437-Day-Counter-Userdata";
+const LATEST_PROFILE_VERSION = "20231015-1";
 
 function generateDefaultProfile() {
     return {
-        counter: []
+        counter: [],
+        version: LATEST_PROFILE_VERSION
     };
 }
 
-// eslint-disable-next-line no-unused-vars
-const app = new Vue({
-    el: "#app",
-    data: {
-        userdata: generateDefaultProfile(),
-        inputModel: {
-            date: "",
-            name: "",
-            reverse: false
-        },
-        currentDate: new Date(Date.now()),
+Vue.component("day-counter", {
+    data() {
+        return {
+            isEditMode: false,
+            tempData: {
+                intermediateDate: ""
+            },
+            inputModel: {
+                name: "",
+                date: "",
+                
+            }
+        };
+    },
+    props: {
+        counter: Object,
+        now: Date
     },
     computed: {
-        currentDateStr() {
-            const now = this.currentDate;
-            let month = (now.getMonth() + 1);               
-            let day = now.getDate();
-            if (month < 10) {
-                month = `0${month}`;
-            }  
-            if (day < 10) {
-                day = `0${day}`;
-            }
-            return `${now.getFullYear()}-${month}-${day}`;
+        isValidModelDate() {
+            return isValidDate(this.inputModel.date);
         }
     },
     methods: {
-        addDate() {
-            this.userdata.counter.push({
-                date: this.inputModel.date,
-                name: this.inputModel.name.trim() === "" ? "Unnamed" : this.inputModel.name,
-                reverse: this.inputModel.reverse
+        initializeModelField() {
+            this.inputModel.name = this.counter.name;
+            this.inputModel.date = this.counter.date;
+            this.tempData.intermediateDate = this.counter.date;
+        },
+        save() {
+            this.$emit("update", {
+                name: this.inputModel.name,
+                date: this.inputModel.date
             });
+            this.isEditMode = false;
         },
-        updateCurrentDate() {
-            const date = new Date(Date.now());
-            date.setHours(0, 0, 0, 0);
-            this.currentDate = date;
+        cancel() {
+            this.isEditMode = false;
         },
-        deleteCounter(i) {
-            if (confirm("Do you want to delete this counter?")) {
-                this.userdata.counter.splice(i, 1);
-            }
+        edit() {
+            this.initializeModelField();
+            this.isEditMode = true;
         },
-
         // If no reverse:
         // X day(s) until Day 1 => Day 1 + x
         
@@ -79,7 +79,7 @@ const app = new Vue({
         daysFromNow(strBaseDate, reverse) {
             const baseDate = new Date(strBaseDate);
 
-            const days = daysBetween(baseDate, this.currentDate);
+            const days = daysBetween(baseDate, this.now);
 
             if (reverse) {
                 return days;
@@ -88,8 +88,95 @@ const app = new Vue({
             return days + (days >= 0 ? 1 : 0);
         }
     },
+    mounted() {
+        this.initializeModelField();
+    },
     watch: {
-        userdata: {
+        inputModel: {
+            deep: true,
+            handler(data) {
+                if (isValidDate(data.date)) {
+                    this.tempData.intermediateDate = data.date;
+                }
+            }
+        }
+    },
+    template: `
+    <div>
+        <div v-if="isEditMode">
+            <input v-model="inputModel.name" placeholder="New Counter"><br>
+            <input type="date" v-model="inputModel.date" min="1970-01-01"><br>
+            {{daysText(tempData.intermediateDate, counter.reverse)}}
+            <button @click="save" :disabled="!isValidModelDate">Save</button>
+            <button @click="cancel">Cancel</button>
+        </div>
+        <div v-else>
+            {{counter.name}}<br>
+            {{counter.date}}<br>
+            {{daysText(counter.date, counter.reverse)}}
+            <button @click="edit">Edit</button>
+        </div>
+        <br>
+        <button @click="deleteCounter(i)">Delete</button>
+        <input type="checkbox" v-model="counter.reverse"> Reverse mode
+    </div>`
+});
+
+// eslint-disable-next-line no-unused-vars
+const app = new Vue({
+    el: "#app",
+    data: {
+        userProfile: generateDefaultProfile(),
+        inputModel: {
+            date: "",
+            name: "",
+            reverse: false
+        },
+        currentDate: new Date(Date.now()),
+    },
+    computed: {
+        currentDateStr() {
+            const now = this.currentDate;
+            let month = (now.getMonth() + 1);               
+            let day = now.getDate();
+            if (month < 10) {
+                month = `0${month}`;
+            }  
+            if (day < 10) {
+                day = `0${day}`;
+            }
+            return `${now.getFullYear()}-${month}-${day}`;
+        },
+        isValidDate() {
+            return isValidDate(this.inputModel.date);
+        }
+    },
+    methods: {
+        addDate() {
+            this.userProfile.counter.push({
+                date: this.inputModel.date,
+                name: this.inputModel.name.trim() === "" ? "New Counter" : this.inputModel.name,
+                reverse: this.inputModel.reverse
+            });
+        },
+        updateCurrentDate() {
+            const date = new Date(Date.now());
+            date.setHours(0, 0, 0, 0);
+            this.currentDate = date;
+        },
+        updateCounter(index, newProp) {
+            const counter = this.userProfile.counter[index];
+            counter.name = newProp.name === "" ? "New Counter" : this.newProp.name;
+            counter.date = newProp.date;
+        },
+        deleteCounter(i) {
+            if (confirm("Do you want to delete this counter?")) {
+                this.userProfile.counter.splice(i, 1);
+            }
+        }
+    },
+    watch: {
+        userProfile: {
             deep: true,
             handler(data) {
                 saveToLocalStorage(data);
@@ -97,7 +184,10 @@ const app = new Vue({
         }
     },
     created() {
-        this.userdata = loadFromLocalStorage();
+        const userProfile = loadFromLocalStorage();
+        // Check for profile update
+        updateUserProfile(userProfile);
+        this.userProfile = userProfile;
     },
     mounted() {
         this.updateCurrentDate();
@@ -105,6 +195,27 @@ const app = new Vue({
         setInterval(this.updateCurrentDate, 1000);
     }
 });
+
+function isValidDate(date) {
+    if (date === "") {
+        return false;
+    }
+    try {
+        const year = parseInt(date.split("-")[0], 10);
+        return year >= 1970;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
+}
+
+// This should mutate the original profile
+function updateUserProfile(profile) {
+    // Before the existance of profile version
+    if (profile.profileVersion === undefined) {
+        profile.version = "20231015-1";
+    }
+}
 
 function saveToLocalStorage(data) {
     const JSONdata = JSON.stringify(data);
@@ -122,7 +233,7 @@ function loadFromLocalStorage() {
         return JSON.parse(JSONdata);
     } catch (e) {
         console.error(e);
-        console.error("Error when parsing userdata: default profile loaded instead.");
+        console.error("Error when parsing user profile: default profile loaded instead.");
         return generateDefaultProfile();
     }
 }

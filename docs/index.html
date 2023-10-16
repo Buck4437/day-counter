@@ -8,19 +8,15 @@
         <div id="app">
             The current date is {{currentDateStr}}.<br><br>
             <div class="counters-list">
-                <div v-for="(counter, i) in userdata.counter">
-                    {{counter.name}}<br>
-                    {{counter.date}}<br>
-                    {{daysText(counter.date, counter.reverse)}}
-                    <button @click="deleteCounter(i)">Delete</button>
-                    <input type="checkbox" v-model="counter.reverse"> Reverse mode
+                <div v-for="(counter, i) in userProfile.counter">
+                    <day-counter :counter="counter" :now="currentDate" @update="updateCounter(i, $event)"></day-counter>
                     <br><br>
                 </div>
             </div>
-            Name: <input v-model="inputModel.name"><br>
-            Date: <input type="date" v-model="inputModel.date"><br>
+            Name: <input v-model="inputModel.name" placeholder="New Counter"><br>
+            Date: <input type="date" v-model="inputModel.date" min="1970-01-01"><br>
             <input type="checkbox" v-model="inputModel.reverse"> Reverse mode<br>
-            <button @click="addDate">Add New Counter</button>
+            <button @click="addDate" :disabled="!isValidDate">Add New Counter</button>
         </div>
     </body>
 
@@ -31,10 +27,11 @@
 <!--
 TODO LIST:
 
-Edit date for entry
+Can edit name / date for each entry
 Export and Import
-Backup plan to restore corrupted userdata (e.g. by displaying an export page for local storage, to prevent deleting their userdata)
-Auto update the page when hits 12 o' clock (Untested)
+Custom sorting order, sort by date, sort by alphabet, etc.
+Backup plan to restore corrupted userProfile (e.g. by displaying an export page for local storage, to prevent deleting their userdata)
+Auto update the page when new day (Untested)
 Memo for each entry
 Archive / Trash Can (?????)
 -->
