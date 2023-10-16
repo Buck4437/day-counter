@@ -106,17 +106,16 @@ Vue.component("day-counter", {
         <div v-if="isEditMode">
             <input v-model="inputModel.name" placeholder="New Counter"><br>
             <input type="date" v-model="inputModel.date" min="1970-01-01"><br>
-            {{daysText(tempData.intermediateDate, counter.reverse)}}
+            {{daysText(tempData.intermediateDate, counter.reverse)}}<br>
             <button @click="save" :disabled="!isValidModelDate">Save</button>
             <button @click="cancel">Cancel</button>
         </div>
         <div v-else>
             {{counter.name}}<br>
             {{counter.date}}<br>
-            {{daysText(counter.date, counter.reverse)}}
+            {{daysText(counter.date, counter.reverse)}}<br>
             <button @click="edit">Edit</button>
         </div>
-        <br>
         <button @click="deleteCounter(i)">Delete</button>
         <input type="checkbox" v-model="counter.reverse"> Reverse mode
     </div>`
