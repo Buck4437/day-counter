@@ -165,7 +165,7 @@ const app = new Vue({
         },
         updateCounter(index, newProp) {
             const counter = this.userProfile.counter[index];
-            counter.name = newProp.name === "" ? "New Counter" : this.newProp.name;
+            counter.name = newProp.name === "" ? "New Counter" : newProp.name;
             counter.date = newProp.date;
         },
         deleteCounter(i) {
