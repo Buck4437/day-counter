@@ -1,0 +1,17 @@
+.day-counter-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.day-counter {
+    width: 300px;
+    min-height: 150px;
+    margin: 0 16px 16px 0;
+    border: 2px solid black;
+    padding: 4px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

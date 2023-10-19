@@ -7,10 +7,9 @@
     <body>
         <div id="app">
             The current date is {{currentDateStr}}.<br><br>
-            <div class="counters-list">
+            <div class="day-counter-list">
                 <div v-for="(counter, i) in userProfile.counter">
                     <day-counter :counter="counter" :now="currentDate" @update="updateCounter(i, $event)"></day-counter>
-                    <br><br>
                 </div>
             </div>
             Name: <input v-model="inputModel.name" placeholder="New Counter"><br>
