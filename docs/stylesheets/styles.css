@@ -1,17 +1,26 @@
+body {
+    margin: 16px;
+}
+
 .day-counter-list {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
 }
 
 .day-counter {
-    width: 300px;
-    min-height: 150px;
+    width: 600px;
+    min-height: 60px;
     margin: 0 16px 16px 0;
     border: 2px solid black;
     padding: 4px;
 
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+}
+
+.day-counter-settings {
+    text-align: right;
 }

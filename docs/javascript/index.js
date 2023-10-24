@@ -66,7 +66,7 @@ Vue.component("day-counter", {
                     return `${-days} day${days === -1 ? "" : "s"} remaining`;
                 }
                 if (days > 0) {
-                    return `${days} day${days === 1 ? "" : "s"} since`;
+                    return `Overdue by ${days} day${days === 1 ? "" : "s"}`;
                 }
                 return `Today`;
             }
@@ -107,17 +107,21 @@ Vue.component("day-counter", {
             <input v-model="inputModel.name" placeholder="New Counter"><br>
             <input type="date" v-model="inputModel.date" min="1970-01-01"><br>
             {{daysText(tempData.intermediateDate, counter.reverse)}}
-            <button @click="save" :disabled="!isValidModelDate">Save</button>
-            <button @click="cancel">Cancel</button>
         </div>
         <div v-else>
             {{counter.name}}<br>
             {{counter.date}}<br>
             {{daysText(counter.date, counter.reverse)}}
-            <button @click="edit">Edit</button>
         </div>
-        <div>
-            <button @click="$emit('delete')">Delete</button>
+        <div class="day-counter-settings">
+            <template v-if="isEditMode">
+                <button @click="save" :disabled="!isValidModelDate">Save</button>
+                <button @click="cancel">Cancel</button><br>
+            </template>
+            <template v-else>
+                <button @click="edit">Edit</button><br>
+            </template>
+            <button @click="$emit('delete')">Delete</button><br>
             <input type="checkbox" v-model="counter.reverse"> Reverse mode
         </div>
     </div>`
