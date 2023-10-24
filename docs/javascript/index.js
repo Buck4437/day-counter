@@ -117,7 +117,7 @@ Vue.component("day-counter", {
             <button @click="edit">Edit</button>
         </div>
         <div>
-            <button @click="deleteCounter(i)">Delete</button>
+            <button @click="$emit('delete')">Delete</button>
             <input type="checkbox" v-model="counter.reverse"> Reverse mode
         </div>
     </div>`

@@ -6,10 +6,14 @@
     </head>
     <body>
         <div id="app">
+            Version: 0.0.0<br>
             The current date is {{currentDateStr}}.<br><br>
             <div class="day-counter-list">
                 <div v-for="(counter, i) in userProfile.counter">
-                    <day-counter :counter="counter" :now="currentDate" @update="updateCounter(i, $event)"></day-counter>
+                    <day-counter :counter="counter" 
+                                 :now="currentDate" 
+                                 @update="updateCounter(i, $event)"
+                                 @delete="deleteCounter(i)"></day-counter>
                 </div>
             </div>
             Name: <input v-model="inputModel.name" placeholder="New Counter"><br>
@@ -19,14 +23,21 @@
         </div>
     </body>
 
-    <script src="javascript/libraries/vue.js"></script>
+    <script src="javascript/libraries/vue.min.js"></script>
     <script src="javascript/index.js"></script>
 </html>
 
 <!--
+Changelog
+
+v0.0.0
+Initial release
+
+
+
 TODO LIST:
 
-Can edit name / date for each entry
+Convert the UI to list view since it's easier to reorder lmao
 Export and Import
 Custom sorting order, sort by date, sort by alphabet, etc.
 Backup plan to restore corrupted userProfile (e.g. by displaying an export page for local storage, to prevent deleting their userdata)
