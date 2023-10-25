@@ -104,20 +104,28 @@ Vue.component("day-counter", {
     },
     template: `
     <div class="day-counter">
-        <div v-if="isEditMode">
-            <input v-model="inputModel.name" placeholder="New Counter"><br>
-            <input type="date" v-model="inputModel.date" min="1970-01-01"><br>
-            {{daysText(tempData.intermediateDate, counter.reverse)}}
-            <button @click="save" :disabled="!isValidModelDate">Save</button>
-            <button @click="cancel">Cancel</button>
+        <div v-if="isEditMode" class="day-counter-info-text">
+            <div>
+                <input v-model="inputModel.name" placeholder="New Counter">
+            </div>
+            <div>
+                <input type="date" v-model="inputModel.date" min="1970-01-01">
+            </div>
+            <div>{{daysText(tempData.intermediateDate, counter.reverse)}}</div>
+            <div>
+                <button @click="save" :disabled="!isValidModelDate">Save</button>
+                <button @click="cancel">Cancel</button>
+            </div>
         </div>
-        <div v-else>
-            {{counter.name}}<br>
-            {{counter.date}}<br>
-            {{daysText(counter.date, counter.reverse)}}
-            <button @click="edit">Edit</button>
+        <div v-else class="day-counter-info-text">
+            <div>{{counter.name}}</div>
+            <div>{{counter.date}}</div>
+            <div>{{daysText(counter.date, counter.reverse)}}</div>
+            <div>
+                <button @click="edit">Edit</button>
+            </div>
         </div>
-        <div>
+        <div class="counter-settings">
             <button @click="$emit('delete')">Delete</button>
             <input type="checkbox" v-model="counter.reverse"> Reverse mode
             (ID: {{counter.id}})
@@ -135,6 +143,7 @@ const app = new Vue({
             name: "",
             reverse: false
         },
+        isEditOrderMode: false,
         currentDate: new Date(Date.now()),
     },
     computed: {

@@ -7,11 +7,13 @@
     <body>
         <div id="app">
             Version: 0.0.1<br>
-            The current date is {{currentDateStr}}.<br><br>
-            <div class="day-counter-list">
+            The current date is {{currentDateStr}}.<br>
+            <button @click="isEditOrderMode = true">Edit order</button><br><br>
+            <div class="day-counter-list" :class="{'list-view': isEditOrderMode}">
                 <div v-for="(counter, i) in userProfile.counter">
                     <day-counter :counter="counter" 
-                                 :now="currentDate" 
+                                 :now="currentDate"
+                                 :class="{'simplified-view': isEditOrderMode}"
                                  @update="updateCounter(i, $event)"
                                  @delete="deleteCounter(i)"></day-counter>
                 </div>
