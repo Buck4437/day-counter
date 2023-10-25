@@ -1,9 +1,10 @@
 const SAVE_KEY = "Buck4437-Day-Counter-Userdata";
-const LATEST_PROFILE_VERSION = "20231015-1";
+const LATEST_PROFILE_VERSION = "20231025-1";
 
 function generateDefaultProfile() {
     return {
         counter: [],
+        nextId: 0,
         version: LATEST_PROFILE_VERSION
     };
 }
@@ -119,6 +120,7 @@ Vue.component("day-counter", {
         <div>
             <button @click="$emit('delete')">Delete</button>
             <input type="checkbox" v-model="counter.reverse"> Reverse mode
+            (ID: {{counter.id}})
         </div>
     </div>`
 });
@@ -157,8 +159,10 @@ const app = new Vue({
             this.userProfile.counter.push({
                 date: this.inputModel.date,
                 name: this.inputModel.name.trim() === "" ? "New Counter" : this.inputModel.name,
-                reverse: this.inputModel.reverse
+                reverse: this.inputModel.reverse,
+                id: this.userProfile.nextId
             });
+            this.userProfile.nextId++;
         },
         updateCurrentDate() {
             const date = new Date(Date.now());
@@ -213,8 +217,17 @@ function isValidDate(date) {
 // This should mutate the original profile
 function updateUserProfile(profile) {
     // Before the existance of profile version
-    if (profile.profileVersion === undefined) {
+    if (profile.version === undefined) {
         profile.version = "20231015-1";
+    }
+
+    // Added IDs to each counter.
+    if (profile.version === "20231015-1") {
+        for (let i = 0; i < profile.counter.length; i++) {
+            profile.counter[i].id = i;
+        }
+        profile.nextId = profile.counter.length;
+        profile.version = "20231025-1";
     }
 }
 
