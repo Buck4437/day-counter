@@ -1,10 +1,11 @@
 const SAVE_KEY = "Buck4437-Day-Counter-Userdata";
-const LATEST_PROFILE_VERSION = "20231025-1";
+const LATEST_PROFILE_VERSION = "20231224-1";
 
 function generateDefaultProfile() {
     return {
         counter: [],
         nextId: 0,
+        backup: [],
         version: LATEST_PROFILE_VERSION
     };
 }
@@ -12,18 +13,18 @@ function generateDefaultProfile() {
 Vue.component("day-counter", {
     data() {
         return {
-            isEditMode: false,
             tempData: {
                 intermediateDate: ""
             },
             inputModel: {
                 name: "",
                 date: "",
-                
             }
         };
     },
-    props: {
+    props: {        
+        isEditMode: Boolean,
+        isEditable: Boolean,
         counter: Object,
         now: Date
     },
@@ -43,14 +44,13 @@ Vue.component("day-counter", {
                 name: this.inputModel.name,
                 date: this.inputModel.date
             });
-            this.isEditMode = false;
+            this.$emit("finish-edit");
         },
         cancel() {
-            this.isEditMode = false;
+            this.$emit("finish-edit");
         },
         edit() {
             this.initializeModelField();
-            this.isEditMode = true;
         },
         // If no reverse:
         // X day(s) until Day 1 => Day 1 + x
@@ -58,7 +58,7 @@ Vue.component("day-counter", {
         // If reverse:
         // Oct 13: Oct 12 will show 1 day remaining, 
         // Oct 13 will show today is the day, 
-        // Oct 14 will show 1 day since.
+        // Oct 14 will show Overdue by 1 day.
         daysText(strBaseDate, reverse) {
             const days = this.daysFromNow(strBaseDate, reverse);
 
@@ -67,7 +67,7 @@ Vue.component("day-counter", {
                     return `${-days} day${days === -1 ? "" : "s"} remaining`;
                 }
                 if (days > 0) {
-                    return `${days} day${days === 1 ? "" : "s"} since`;
+                    return `Overdue by ${days} day${days === 1 ? "" : "s"}`;
                 }
                 return `Today`;
             }
@@ -100,6 +100,9 @@ Vue.component("day-counter", {
                     this.tempData.intermediateDate = data.date;
                 }
             }
+        },
+        isEditMode() {
+            this.initializeModelField();
         }
     },
     template: `
@@ -121,13 +124,13 @@ Vue.component("day-counter", {
             <div>{{counter.name}}</div>
             <div>{{counter.date}}</div>
             <div>{{daysText(counter.date, counter.reverse)}}</div>
-            <div>
-                <button @click="edit">Edit</button>
+            <div v-show="isEditable">
+                <button @click="$emit('request-edit')">Edit</button>
             </div>
         </div>
         <div class="counter-settings">
             <button @click="$emit('delete')">Delete</button>
-            <input type="checkbox" v-model="counter.reverse"> Reverse mode
+            <input type="checkbox" v-model="counter.reverse"> Countdown mode
             (ID: {{counter.id}})
         </div>
     </div>`
@@ -145,6 +148,9 @@ const app = new Vue({
         },
         isEditOrderMode: false,
         currentDate: new Date(Date.now()),
+        listView: false,
+        // Id of counter being edited
+        editingId: null
     },
     computed: {
         currentDateStr() {
@@ -161,6 +167,12 @@ const app = new Vue({
         },
         isValidDate() {
             return isValidDate(this.inputModel.date);
+        },
+        isBeingEdited() {
+            return this.editingId !== null;
+        },
+        isEditable() {
+            return !this.isBeingEdited && !this.isEditOrderMode;
         }
     },
     methods: {
@@ -178,14 +190,33 @@ const app = new Vue({
             date.setHours(0, 0, 0, 0);
             this.currentDate = date;
         },
+        requestEditCounter(id) {
+            if (this.isEditable) {
+                this.editingId = id;
+            }
+        },
+        finishEditCounter() {
+            this.editingId = null;
+        },
         updateCounter(index, newProp) {
             const counter = this.userProfile.counter[index];
             counter.name = newProp.name === "" ? "New Counter" : newProp.name;
             counter.date = newProp.date;
         },
         deleteCounter(i) {
-            if (confirm("Do you want to delete this counter?")) {
+            const counter = this.userProfile.counter[i];
+            if (confirm(`Do you want to delete ${counter.name}?`)) {
+                if (counter.id === this.editingId) {
+                    this.editingId = null;
+                }
                 this.userProfile.counter.splice(i, 1);
+            }
+        },
+
+        // Backup management
+        deleteBackup(i) {
+            if (confirm(`Do you want to delete this backup?`)) {
+                this.userProfile.backup.splice(i, 1);
             }
         }
     },
@@ -238,6 +269,14 @@ function updateUserProfile(profile) {
         profile.nextId = profile.counter.length;
         profile.version = "20231025-1";
     }
+
+
+    // Added backup JSON data for restoration and debugging.
+    if (profile.version === "20231025-1") {
+        profile.backup = [];
+
+        profile.version = "20231224-1";
+    }
 }
 
 function saveToLocalStorage(data) {
@@ -247,8 +286,9 @@ function saveToLocalStorage(data) {
 
 
 function loadFromLocalStorage() {
+    let JSONdata;
     try {
-        const JSONdata = localStorage.getItem(SAVE_KEY);
+        JSONdata = localStorage.getItem(SAVE_KEY);
         if (JSONdata === null) {
             console.log("No profile find, generating default profile...");
             return generateDefaultProfile();
@@ -257,7 +297,18 @@ function loadFromLocalStorage() {
     } catch (e) {
         console.error(e);
         console.error("Error when parsing user profile: default profile loaded instead.");
-        return generateDefaultProfile();
+        
+        const newProfile = generateDefaultProfile();
+        
+        if (JSONdata !== null) {
+            newProfile.backup.push(JSONdata);
+            alert(
+                "Your user profile is corrupted. The corrupted user profile has been stored in the 'backup' section." + 
+                "You can manage your user profile and backup up any data in that section."
+            );
+        }
+
+        return newProfile;
     }
 }
 
