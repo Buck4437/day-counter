@@ -1,7 +1,15 @@
+.invisible {
+    visibility: hidden;
+}
+
 .day-counter-list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+
+.day-counter-list.list-view {
+    flex-direction: column;
 }
 
 .day-counter {
@@ -14,4 +22,58 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.day-counter .day-counter-info-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.day-counter .title  {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	width: 100%;
+}
+
+.day-counter button {
+    margin-top: 4px;
+}
+
+.day-counter.list-view {
+    width: 800px;
+    min-height: 30px;
+    margin: 0 16px 16px 0;
+    border: 2px solid black;
+    padding: 8px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.day-counter.list-view .day-counter-info-text {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.day-counter.list-view .day-counter-info-text > * {
+    width: 30%;
+}
+
+.day-counter.list-view input {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.day-counter.list-view .counter-settings {
+    padding-top: 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.day-counter-list.edit-mode .day-counter {
+    cursor: move;
 }

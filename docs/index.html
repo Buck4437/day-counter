@@ -6,42 +6,70 @@
     </head>
     <body>
         <div id="app">
-            Version: 0.0.0<br>
-            The current date is {{currentDateStr}}.<br><br>
-            <div class="day-counter-list">
+            Version: 0.0.1<br>
+            The current date is {{currentDateStr}}.<br>
+            Current view: {{listView ? "List view" : "Grid view"}} <button @click="listView = !listView">Toggle view</button><br>
+            <div v-if="!isEditOrderMode && isEditable">
+                <button @click="isEditOrderMode = true">Edit order</button>
+            </div>
+            <div v-if="isEditOrderMode">
+                <button @click="isEditOrderMode = false">Return</button>
+            </div>
+            <br><br>
+            <draggable v-model="userProfile.counter"
+                       class="day-counter-list" 
+                       :class="{'list-view': listView, 'edit-mode': isEditOrderMode}" 
+                       :disabled="!isEditOrderMode"
+                       animation="250">
                 <div v-for="(counter, i) in userProfile.counter">
                     <day-counter :counter="counter" 
-                                 :now="currentDate" 
+                                 :now="currentDate"
+                                 :class="{'list-view': listView}"
+                                 :is-edit-mode="counter.id === editingId"
+                                 :is-editable="isEditable"
+                                 @request-edit="requestEditCounter(counter.id)"
+                                 @finish-edit="finishEditCounter"
                                  @update="updateCounter(i, $event)"
                                  @delete="deleteCounter(i)"></day-counter>
                 </div>
-            </div>
+            </draggable>
             Name: <input v-model="inputModel.name" placeholder="New Counter"><br>
             Date: <input type="date" v-model="inputModel.date" min="1970-01-01"><br>
             <input type="checkbox" v-model="inputModel.reverse"> Reverse mode<br>
-            <button @click="addDate" :disabled="!isValidDate">Add New Counter</button>
+            <button @click="addDate" :disabled="!isValidDate">Add New Counter</button><br>
+
+            <div v-if="userProfile.backup.length > 0">
+                <h3>Backup</h3>
+                The following user profiles are corrupted and cannot be read. You can manage them here in this section.<br>
+                <div v-for="(backup, i) in userProfile.backup">
+                    <textarea readonly>
+                        {{backup}}
+                    </textarea> <br>
+                    <button @click="deleteBackup(i)">Delete this backup</button><br><br><br>
+                </div>
+            </div>
         </div>
     </body>
 
-    <script src="javascript/libraries/vue.min.js"></script>
+    <script src="javascript/libraries/vue.js"></script>
+    <script src="javascript/libraries/sortable.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuedraggable@2.24.3/dist/vuedraggable.umd.min.js "></script>
     <script src="javascript/index.js"></script>
 </html>
 
 <!--
 Changelog
+v0.0.1
+Counter ID
+Prompt shows the name of counter
+Reordering
+List View
+Backup System
 
 v0.0.0
 Initial release
 
-
-
 TODO LIST:
-
-Convert the UI to list view since it's easier to reorder lmao
-Export and Import
-Custom sorting order, sort by date, sort by alphabet, etc.
-Backup plan to restore corrupted userProfile (e.g. by displaying an export page for local storage, to prevent deleting their userdata)
-Auto update the page when new day (Untested)
-Memo for each entry
+(Read github for the main stuff)
 Archive / Trash Can (?????)
 -->
