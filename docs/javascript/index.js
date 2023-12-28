@@ -115,23 +115,27 @@ Vue.component("day-counter", {
                 <input type="date" v-model="inputModel.date" min="1970-01-01">
             </div>
             <div>{{daysText(tempData.intermediateDate, counter.reverse)}}</div>
-            <div>
-                <button @click="save" :disabled="!isValidModelDate">Save</button>
-                <button @click="cancel">Cancel</button>
-            </div>
         </div>
         <div v-else class="day-counter-info-text">
-            <div>{{counter.name}}</div>
+            <div class="title">{{counter.name}}</div>
             <div>{{counter.date}}</div>
             <div>{{daysText(counter.date, counter.reverse)}}</div>
-            <div v-show="isEditable">
-                <button @click="$emit('request-edit')">Edit</button>
-            </div>
         </div>
         <div class="counter-settings">
-            <button @click="$emit('delete')">Delete</button>
-            <input type="checkbox" v-model="counter.reverse"> Countdown mode
-            (ID: {{counter.id}})
+            <div :class="{'invisible': !isEditable && !isEditMode}">
+                <template v-if="isEditMode">
+                    <button @click="save" :disabled="!isValidModelDate">Save</button>
+                    <button @click="cancel">Cancel</button>
+                </template>
+                <template v-else>
+                    <button @click="$emit('request-edit')">Edit</button>
+                </template>
+            </div>
+            <div>
+                <button @click="$emit('delete')">Delete</button>
+                <input type="checkbox" v-model="counter.reverse"> Countdown mode
+                (ID: {{counter.id}})
+            </div>
         </div>
     </div>`
 });
