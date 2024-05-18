@@ -222,6 +222,23 @@ const app = new Vue({
             if (confirm(`Do you want to delete this backup?`)) {
                 this.userProfile.backup.splice(i, 1);
             }
+        },
+        exportData() {
+            const JSONdata = JSON.stringify(this.userProfile);
+            download(`Day counter data ${new Date(Date.now())}.txt`, JSONdata);
+        },
+        importData(e) {
+            const file = e.target.files[0]; 
+            readFile(file, save => {
+                try {
+                    const data = JSON.parse(save);
+                    this.userProfile = data;
+                    alert("Imported successfully.");
+                } catch (err) {
+                    console.error(err);
+                    alert("Error when parsing file.");
+                }
+            });
         }
     },
     watch: {
@@ -329,4 +346,31 @@ function daysBetween(prev, now) {
     // Convert back to days and return
     return Math.round(differenceMs / ONE_DAY);
 
+}
+
+// Export user data as JSON
+function download(filename, text) {
+    // Source: https://www.bitdegree.org/learn/javascript-download
+
+    const element = document.createElement("a");
+    element.setAttribute("href", `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`);
+    element.setAttribute("download", filename);
+
+    element.style.display = "none";
+    document.body.appendChild(element);
+    element.click();
+
+    document.body.removeChild(element);
+}
+
+function readFile(file, handler) {
+    // Setting up the reader
+    const reader = new FileReader();
+    reader.readAsText(file, "UTF-8");
+
+    // Here we tell the reader what to do when it's done reading...
+    reader.onload = readerEvent => {
+        const content = readerEvent.target.result;
+        handler(content);
+    };
 }

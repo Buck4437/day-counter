@@ -6,7 +6,7 @@
     </head>
     <body>
         <div id="app">
-            Version: 0.0.1<br>
+            Version: 0.0.2<br>
             The current date is {{currentDateStr}}.<br>
             Current view: {{listView ? "List view" : "Grid view"}} <button @click="listView = !listView">Toggle view</button><br>
             <div v-if="!isEditOrderMode && isEditable">
@@ -37,6 +37,8 @@
             Date: <input type="date" v-model="inputModel.date" min="1970-01-01"><br>
             <input type="checkbox" v-model="inputModel.reverse"> Reverse mode<br>
             <button @click="addDate" :disabled="!isValidDate">Add New Counter</button><br>
+            <button @click="exportData">Export as txt</button><br>
+            Import (Will override data): <input type="file" @change="importData"></input><br>
 
             <div v-if="userProfile.backup.length > 0">
                 <h3>Backup</h3>
@@ -59,6 +61,9 @@
 
 <!--
 Changelog
+v0.0.2
+Export, Import
+
 v0.0.1
 Counter ID
 Prompt shows the name of counter
